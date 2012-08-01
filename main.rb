@@ -10,22 +10,32 @@ end
 $client = VkontakteApi::Client.new(ENV['TOKEN'])
 
 class Messenger
-  attr_reader :long_poll_params
-  
   def initialize(ws)
-    @long_poll_params = $client.messages.get_long_poll_server
+    @ws = ws
+  end
+  
+  def start
+    Fiber.new do
+      params = $client.messages.get_long_poll_server
+      url = 'http://' + params.delete(:server)
+      params.update(act: 'a_check', wait: 25, mode: 2)
+      
+      while response = VkontakteApi::API.connection.get(url, params).body
+        @ws.send Oj.dump(response)
+        params[:ts] = response.ts
+      end
+    end.resume
   end
 end
 
 EM.synchrony do
   EventMachine::WebSocket.start(host: '0.0.0.0', port: 8080) do |ws|
     ws.onopen do
-      Fiber.new do
-        puts 'Connection open'
-        messenger = Messenger.new(ws)
-        
-        ws.send "Hello Client. Got long poll params: #{messenger.long_poll_params.inspect}"
-      end.resume
+      puts 'Connection open'
+      messenger = Messenger.new(ws)
+      messenger.start
+      
+      ws.send 'Hello Client.'
     end
     
     ws.onclose do
