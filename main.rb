@@ -16,6 +16,9 @@ class Messenger
   
   def start
     Fiber.new do
+      friends = $client.friends.get(fields: [:screen_name, :photo])
+      @ws.send Oj.dump(friends)
+      
       params = $client.messages.get_long_poll_server
       url = 'http://' + params.delete(:server)
       params.update(act: 'a_check', wait: 25, mode: 2)
