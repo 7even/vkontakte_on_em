@@ -24,11 +24,15 @@ class Messenger
       url = 'http://' + params.delete(:server)
       params.update(act: 'a_check', wait: 25, mode: 2)
       
-      while response = VkontakteApi::API.connection.get(url, params).body
+      while !@stopped && response = VkontakteApi::API.connection.get(url, params).body
         @ws.send Oj.dump('type' => 'updates', 'data' => response.updates)
         params[:ts] = response.ts
       end
     end.resume
+  end
+  
+  def stop
+    @stopped = true
   end
 end
 
@@ -36,13 +40,14 @@ EM.synchrony do
   EventMachine::WebSocket.start(host: '0.0.0.0', port: 8080) do |ws|
     ws.onopen do
       puts 'Connection open'
-      messenger = Messenger.new(ws)
-      messenger.start
+      $messenger = Messenger.new(ws)
+      $messenger.start
       
       # ws.send 'Hello Client.'
     end
     
     ws.onclose do
+      $messenger.stop
       puts 'Connection closed'
     end
     
