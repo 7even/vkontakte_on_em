@@ -17,15 +17,14 @@ class Messenger
   def start
     Fiber.new do
       friends = $client.friends.get(fields: [:screen_name, :photo])
-      @ws.send Oj.dump('type' => 'friends_list', 'data' => friends)
+      send_to_websocket(friends_list: friends)
       
       params = $client.messages.get_long_poll_server
-      # @ws.send Oj.dump(params)
       url = 'http://' + params.delete(:server)
       params.update(act: 'a_check', wait: 25, mode: 2)
       
       while !@stopped && response = VkontakteApi::API.connection.get(url, params).body
-        @ws.send Oj.dump('type' => 'updates', 'data' => response.updates)
+        send_to_websocket(updates: response.updates)
         params[:ts] = response.ts
       end
     end.resume
@@ -33,6 +32,18 @@ class Messenger
   
   def stop
     @stopped = true
+  end
+  
+private
+  def send_to_websocket(messages)
+    messages.each do |type, data|
+      json = Oj.dump(
+        'type' => type.to_s,
+        'data' => data
+      )
+      
+      @ws.send json
+    end
   end
 end
 
