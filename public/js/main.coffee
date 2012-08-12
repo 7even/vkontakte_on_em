@@ -1,35 +1,36 @@
 # coffee -wc public/js/main.coffee
 
 $(document).ready ->
-  navbar = $('#navbar')
-  main = $('#main')
-  
   usersList =
     list: []
     
     load: (list) ->
       @list = list
+      @clearOnLoad()
       @render()
     
     render: ->
-      navbar.empty()
-      main.empty()
-      @renderTab 'debug', '<i class="icon-info-sign"></i> Debug info', true
-      navbar.append '<li class="divider"></li>'
+      @clear()
       
-      $(@list).each (index, user) =>
-        id = "user#{user.uid}"
-        name = '<i class="icon-user"></i> ' + "#{user.first_name} #{user.last_name}"
-        name += ' <span class="label label-success">Online</span>' if user.online
-        @renderTab id, name
+      $(@list).each (index, user) => @renderUser user
       
-    renderTab: (id, name, active = false) ->
-      li = '<li' + (if active then ' class="active"' else '') + '><a href="#' + id + '" data-toggle="tab">' + name + '</a></li>'
-      pane = '<div class="tab-pane fade' + (if active then ' in active' else '') + '" id="' + id + '"><h6>' + name + '</h6></div>'
+    renderUser: (user) ->
+      name = "#{user.first_name} #{user.last_name}"
       
-      navbar.append li
-      main.append pane
+      li = '<li class="user"><a href="#user_' + user.uid + '" data-toggle="tab"><i class="icon-user"></i> ' + name
+      li += ' <span class="label label-success">Online</span>' if user.online
+      li += '</a></li>'
+      
+      pane = '<div class="tab-pane fade user" id="user_' + user.uid + '"><h6>' + name + '</h6></div>'
+      
+      $('#navbar').append li
+      $('#main').append pane
     
+    clear: ->
+      $('.user').remove()
+    
+    clearOnLoad: ->
+      $('.loading').remove()
   
   ws = new WebSocket 'ws://0.0.0.0:8080'
   ws.onmessage = (event) ->
