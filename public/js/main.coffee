@@ -1,18 +1,20 @@
 # coffee -wc public/js/main.coffee
 
+log = (param) -> console.log param
+
 $(document).ready ->
   usersList =
-    list: []
+    list: {}
     
     load: (list) ->
-      @list = list
+      @list[user.uid] = user for user in list
       @clearOnLoad()
       @render()
     
     render: ->
       @clear()
       
-      $(@list).each (index, user) => @renderUser user
+      @renderUser user for uid, user of @list
       
     renderUser: (user) ->
       name = "#{user.first_name} #{user.last_name}"
@@ -32,19 +34,45 @@ $(document).ready ->
     clearOnLoad: ->
       $('.loading').remove()
   
+  feed =
+    process: (updates) ->
+      for update in updates
+        code = update[0]
+        id = update[1]
+        
+        switch code
+          when 8
+            # друг $user_id стал онлайн
+            user = usersList.list[-id]
+            user.online = 1
+            usersList.render()
+            @add "#{user.first_name} #{user.last_name} online"
+          when 9
+            # друг $user_id стал оффлайн
+            user = usersList.list[-id]
+            user.online = 0
+            usersList.render()
+            @add "#{user.first_name} #{user.last_name} offline"
+    
+    add: (string) ->
+      $('#feed ul').append "<li>#{string}</li>"
+  
   ws = new WebSocket 'ws://0.0.0.0:8080'
   ws.onmessage = (event) ->
     message = $.parseJSON event.data
-    console.log 'received message from server:'
-    console.log message
     
-    usersList.load message.data if message.type == 'friends_list'
+    switch message.type
+      when 'friends_list' then usersList.load message.data
+      when 'updates'      then feed.process message.data
+      else
+        log 'received unknown message:'
+        log message
     
     $('#debug').append '<pre>' + event.data + '</pre>'
   
   ws.onopen = ->
-    console.log 'connected...'
+    log 'connected...'
     # @send 'hello server'
   
   ws.onclose = ->
-    console.log 'socket closed'
+    log 'socket closed'
