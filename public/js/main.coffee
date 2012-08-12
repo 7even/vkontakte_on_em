@@ -9,17 +9,17 @@ $(document).ready ->
     
     load: (list) ->
       @list = list
-      this.render()
+      @render()
     
     render: ->
       navbar.empty()
       main.empty()
-      this.renderTab 'debug', 'Debug info', true
+      @renderTab 'debug', 'Debug info', true
       
-      $(this.list).each (index, user) ->
+      $(@list).each (index, user) =>
         id = 'user' + user.uid
         name = user.first_name + ' ' + user.last_name
-        usersList.renderTab id, name
+        @renderTab id, name
       
     renderTab: (id, name, active = false) ->
       li = '<li' + (if active then ' class="active"' else '') + '><a href="#' + id + '" data-toggle="tab">' + name + '</a></li>'
