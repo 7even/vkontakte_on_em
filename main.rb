@@ -64,7 +64,7 @@ EM.synchrony do
     
     ws.onmessage do |msg|
       puts "Received message: #{msg}"
-      ws.send "Pong: #{msg}"
+      ws.send Oj.dump('pong' => msg)
     end
   end
 end

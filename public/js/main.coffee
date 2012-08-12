@@ -14,16 +14,18 @@ $(document).ready ->
     render: ->
       navbar.empty()
       main.empty()
-      @renderTab 'debug', 'Debug info', true
+      @renderTab 'debug', '<i class="icon-info-sign"></i> Debug info', true
+      navbar.append '<li class="divider"></li>'
       
       $(@list).each (index, user) =>
-        id = 'user' + user.uid
-        name = user.first_name + ' ' + user.last_name
+        id = "user#{user.uid}"
+        name = '<i class="icon-user"></i> ' + "#{user.first_name} #{user.last_name}"
+        name += ' <span class="label label-success">Online</span>' if user.online
         @renderTab id, name
       
     renderTab: (id, name, active = false) ->
       li = '<li' + (if active then ' class="active"' else '') + '><a href="#' + id + '" data-toggle="tab">' + name + '</a></li>'
-      pane = '<div class="tab-pane' + (if active then ' active' else '') + '" id="' + id + '"><h6>' + name + '</h6></div>'
+      pane = '<div class="tab-pane fade' + (if active then ' in active' else '') + '" id="' + id + '"><h6>' + name + '</h6></div>'
       
       navbar.append li
       main.append pane
@@ -41,7 +43,7 @@ $(document).ready ->
   
   ws.onopen = ->
     console.log 'connected...'
-    # ws.send 'hello server'
+    # @send 'hello server'
   
   ws.onclose = ->
     console.log 'socket closed'
