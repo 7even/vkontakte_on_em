@@ -41,18 +41,31 @@ $(document).ready ->
         id = update[1]
         
         switch code
-          when 8
-            # друг $user_id стал онлайн
+          when 8, 9
+            # друг $user_id стал онлайн(8) / оффлайн(9)
             user = usersList.list[-id]
-            user.online = 1
+            user.online = if code == 8 then 1 else 0
             usersList.render()
-            @add "#{user.first_name} #{user.last_name} online"
-          when 9
-            # друг $user_id стал оффлайн
-            user = usersList.list[-id]
-            user.online = 0
-            usersList.render()
-            @add "#{user.first_name} #{user.last_name} offline"
+            
+            date = '<span class="badge">' + @formatDate() + '</span>'
+            if code == 8
+              label = '<span class="label label-info">online</span>'
+            else
+              label = '<span class="label label-important">offline</span>'
+            
+            @add [date, label, user.first_name, user.last_name].join ' '
+    
+    formatDate: (date = new Date) ->
+      dateParts = [
+        date.getHours().toString()
+        date.getMinutes().toString()
+        date.getSeconds().toString()
+      ]
+      
+      dateParts = for part in dateParts
+        if part.length is 1 then "0#{part}" else part
+      
+      dateParts.join ':'
     
     add: (string) ->
       $('#feed ul').append "<li>#{string}</li>"
