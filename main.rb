@@ -19,13 +19,16 @@ class Messenger
       friends = $client.friends.get(fields: [:screen_name, :photo])
       send_to_websocket(friends_list: friends)
       
-      params = $client.messages.get_long_poll_server
-      url = 'http://' + params.delete(:server)
-      params.update(act: 'a_check', wait: 25, mode: 2)
-      
+      url, params = get_polling_params
       while !@stopped && response = VkontakteApi::API.connection.get(url, params).body
-        send_to_websocket(updates: response.updates)
-        params[:ts] = response.ts
+        if response.failed?
+          # время действия ключа истекло, нужно получить новый
+          url, params = get_polling_params
+          next
+        else
+          send_to_websocket(updates: response.updates)
+          params[:ts] = response.ts
+        end
       end
     end.resume
   end
@@ -44,6 +47,15 @@ private
       
       @ws.send json
     end
+  end
+  
+  def get_polling_params
+    params = $client.messages.get_long_poll_server
+    
+    [
+      'http://' + params.delete(:server),
+      params.merge(act: 'a_check', wait: 25, mode: 2)
+    ]
   end
 end
 

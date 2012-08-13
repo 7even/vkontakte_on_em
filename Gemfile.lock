@@ -2,6 +2,7 @@ GEM
   remote: http://rubygems.org/
   specs:
     addressable (2.3.2)
+    awesome_print (1.0.2)
     coderay (1.0.6)
     cookiejar (0.3.0)
     em-http-request (1.0.2)
@@ -58,6 +59,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  awesome_print
   em-http-request
   em-synchrony
   em-websocket
