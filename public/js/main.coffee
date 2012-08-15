@@ -8,30 +8,33 @@ $(document).ready ->
     
     load: (list) ->
       @list[user.uid] = user for user in list
+      
       @clearOnLoad()
-      @render()
+      @renderMenu()
+      @renderPanes()
     
-    render: ->
-      # TODO: не нужно чистить все при каждом рендере
-      @clear()
+    # очистка и ререндер менюшки
+    renderMenu: ->
+      $('#navbar .user').remove()
       
-      @renderUser user for uid, user of @list
-      
-    renderUser: (user) ->
-      name = "#{user.first_name} #{user.last_name}"
-      
-      li = '<li class="user"><a href="#user_' + user.uid + '" data-toggle="tab"><i class="icon-user"></i> ' + name
-      li += ' <span class="label label-success">Online</span>' if user.online
-      li += '</a></li>'
-      
-      pane = '<div class="tab-pane fade user" id="user_' + user.uid + '">'
-      pane += '<h6>' + name + '</h6><ul class="feed"></ul></div>'
-      
-      $('#navbar').append li
-      $('#main').append pane
+      for id, user of @list
+        name = "#{user.first_name} #{user.last_name}"
+        
+        li = '<li class="user"><a href="#user_' + id + '" data-toggle="tab"><i class="icon-user"></i> ' + name
+        li += ' <span class="label label-success">Online</span>' if user.online
+        li += '</a></li>'
+        
+        $('#navbar').append li
     
-    clear: ->
-      $('.user').remove()
+    # метод должен вызываться один раз после загрузки usersList
+    renderPanes: ->
+      for id, user of @list
+        name = "#{user.first_name} #{user.last_name}"
+        
+        pane = '<div class="tab-pane fade user" id="user_' + id + '">'
+        pane += '<h6>' + name + '</h6><ul class="feed"></ul></div>'
+        
+        $('#main').append pane
     
     clearOnLoad: ->
       $('.loading').remove()
@@ -43,11 +46,11 @@ $(document).ready ->
         id = update[1]
         
         switch code
+          # друг $user_id стал онлайн(8) / оффлайн(9)
           when 8, 9
-            # друг $user_id стал онлайн(8) / оффлайн(9)
             user = usersList.list[-id]
             user.online = if code == 8 then 1 else 0
-            usersList.render()
+            usersList.renderMenu()
             
             date = '<span class="badge">' + @formatDate() + '</span>'
             if code == 8
@@ -70,7 +73,9 @@ $(document).ready ->
       dateParts.join ':'
     
     add: (labels, user) ->
+      # добавляем полную запись (лейблы плюс юзернейм) в общий фид
       $('#feed ul.feed').append "<li>#{labels} #{user.first_name} #{user.last_name}</li>"
+      # и укороченную запись (только лейблы) в персональный фид
       $("#user_#{user.uid} ul.feed").append "<li>#{labels}</li>"
   
   ws = new WebSocket 'ws://0.0.0.0:8080'
