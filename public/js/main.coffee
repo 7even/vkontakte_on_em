@@ -12,6 +12,7 @@ $(document).ready ->
       @render()
     
     render: ->
+      # TODO: не нужно чистить все при каждом рендере
       @clear()
       
       @renderUser user for uid, user of @list
@@ -23,7 +24,8 @@ $(document).ready ->
       li += ' <span class="label label-success">Online</span>' if user.online
       li += '</a></li>'
       
-      pane = '<div class="tab-pane fade user" id="user_' + user.uid + '"><h6>' + name + '</h6></div>'
+      pane = '<div class="tab-pane fade user" id="user_' + user.uid + '">'
+      pane += '<h6>' + name + '</h6><ul class="feed"></ul></div>'
       
       $('#navbar').append li
       $('#main').append pane
@@ -53,7 +55,7 @@ $(document).ready ->
             else
               label = '<span class="label label-important">offline</span>'
             
-            @add [date, label, user.first_name, user.last_name].join ' '
+            @add [date, label].join(' '), user
     
     formatDate: (date = new Date) ->
       dateParts = [
@@ -67,8 +69,9 @@ $(document).ready ->
       
       dateParts.join ':'
     
-    add: (string) ->
-      $('#feed ul').append "<li>#{string}</li>"
+    add: (labels, user) ->
+      $('#feed ul.feed').append "<li>#{labels} #{user.first_name} #{user.last_name}</li>"
+      $("#user_#{user.uid} ul.feed").append "<li>#{labels}</li>"
   
   ws = new WebSocket 'ws://0.0.0.0:8080'
   ws.onmessage = (event) ->
