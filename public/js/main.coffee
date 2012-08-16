@@ -100,27 +100,27 @@ $(document).ready ->
       # и укороченную запись (только лейблы) в персональный фид
       $("#user_#{user.uid} ul.feed").append "<li>#{statusString}</li>"
     
-    addMessage: (message, user, date, incoming = true) ->
+    addMessage: (message, user, date, outgoing = false) ->
       # TODO: это надо делать только если не открыта таба этого юзера
       user.unread += 1
       usersList.renderMenu()
       
-      messageString = if incoming
+      messageString = if outgoing
+        [
+          '<blockquote class="message pull-right">'
+          "<p>#{message}</p>"
+          '<small><i class="icon-user"></i> Я'
+          ' | ' + @formatDate(date)
+          '</small></blockquote>'
+          '<div class="clearfix"></div>'
+        ].join ' '
+      else
         username = [user.first_name, user.last_name].join(' ')
         [
           '<blockquote class="message">'
           "<p>#{message}</p>"
           '<small><i class="icon-user"></i> '
           username
-          ' | ' + @formatDate(date)
-          '</small></blockquote>'
-          '<div class="clearfix"></div>'
-        ].join ' '
-      else
-        [
-          '<blockquote class="message pull-right">'
-          "<p>#{message}</p>"
-          '<small><i class="icon-user"></i> Я'
           ' | ' + @formatDate(date)
           '</small></blockquote>'
           '<div class="clearfix"></div>'
