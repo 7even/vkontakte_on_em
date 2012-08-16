@@ -5,3 +5,7 @@ ul.feed {
 ul.feed li {
   list-style-type: none;
 }
+
+blockquote.message {
+  margin-bottom: 0px;
+}
