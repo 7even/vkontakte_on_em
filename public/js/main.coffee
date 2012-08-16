@@ -128,7 +128,7 @@ $(document).ready ->
       
       $("#user_#{user.uid} ul.feed").append messageString
   
-  $('#navbar').on 'shown', 'a[data-toggle="tab"]', (e) ->
+  $('#navbar').on 'shown', 'li.user a[data-toggle="tab"]', (e) ->
     user_id = e.target.id.split('_')[1]
     user = usersList.list[user_id]
     user.unread = 0
