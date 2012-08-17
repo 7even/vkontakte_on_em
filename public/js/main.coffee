@@ -35,7 +35,11 @@ $(document).ready ->
         name = "#{user.first_name} #{user.last_name}"
         
         pane = '<div class="tab-pane fade user" id="user_' + id + '">'
-        pane += '<h6>' + name + '</h6><ul class="feed"></ul></div>'
+        pane += '<h6>' + name + '</h6><ul class="feed"></ul>'
+        pane += '<form class="well message" data-user-id="' + id + '">'
+        pane += '<textarea class="span8" name="message" placeholder="Сообщение"></textarea>'
+        pane += '<button class="btn btn-primary" type="submit">Отправить</button>'
+        pane += '</form></div>'
         
         $('#main').append pane
     
@@ -133,6 +137,16 @@ $(document).ready ->
     user = usersList.list[user_id]
     user.unread = 0
     usersList.renderMenu()
+  
+  $(document).on 'submit', 'form.message', (e) ->
+    form = $(e.target)
+    message =
+      user_id: form.data('user-id')
+      text:    form[0].message.value
+    
+    ws.send $.param(message)
+    form[0].message.value = ''
+    false
   
   ws = new WebSocket 'ws://0.0.0.0:8080'
   ws.onmessage = (event) ->
