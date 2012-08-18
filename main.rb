@@ -37,6 +37,13 @@ class Messenger
     @stopped = true
   end
   
+  def send_message(params = {})
+    Fiber.new do
+      # мини-костыль для вызова $client.messages.send
+      VkontakteApi::Method.new('send', resolver: $client.messages).call(params)
+    end.resume
+  end
+  
 private
   def send_to_websocket(messages)
     messages.each do |type, data|
@@ -65,8 +72,6 @@ EM.synchrony do
       puts 'Connection open'
       $messenger = Messenger.new(ws)
       $messenger.start
-      
-      # ws.send 'Hello Client.'
     end
     
     ws.onclose do
@@ -75,7 +80,14 @@ EM.synchrony do
     end
     
     ws.onmessage do |msg|
-      puts "Received message: #{msg}"
+      # сообщение приходит в формате uid=12345&message=abcde
+      # парсим его в Hashie::Mash и отправляем мессенджеру
+      message_params = CGI.parse(msg).inject(Hashie::Mash.new) do |mash, (key, value)|
+        mash.merge(key => value.first)
+      end
+      $messenger.send_message(message_params)
+      
+      puts "Received message: #{message_params.inspect}"
       ws.send Oj.dump('pong' => msg)
     end
   end

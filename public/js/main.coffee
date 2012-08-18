@@ -141,8 +141,8 @@ $(document).ready ->
   $(document).on 'submit', 'form.message', (e) ->
     form = $(e.target)
     message =
-      user_id: form.data('user-id')
-      text:    form[0].message.value
+      uid:     form.data('user-id')
+      message: form[0].message.value
     
     ws.send $.param(message)
     form[0].message.value = ''
@@ -163,7 +163,6 @@ $(document).ready ->
   
   ws.onopen = ->
     log 'connected...'
-    # @send 'hello server'
   
   ws.onclose = ->
     log 'socket closed'
