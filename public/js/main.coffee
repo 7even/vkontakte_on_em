@@ -2,6 +2,46 @@
 
 log = (param) -> console.log param
 
+class Message
+  constructor: (@id, flags, from_id, timestamp, @subject, @text, @attachments) ->
+    @unread = flags & 1
+    @outgoing = flags & 2
+    @user = usersList.list[from_id]
+    @date = new Date(timestamp * 1000)
+    
+    if @unread
+      @user.unread += 1
+      usersList.renderMenu()
+    
+    @render()
+  
+  read: ->
+    @unread = false
+  
+  render: ->
+    messageString = if @outgoing
+      [
+        '<blockquote id="' + @id + '" class="message pull-right">'
+        "<p>#{@text}</p>"
+        '<small><i class="icon-user"></i> Я'
+        ' | ' + feed.formatDate(@date)
+        '</small></blockquote>'
+        '<div class="clearfix"></div>'
+      ].join ' '
+    else
+      username = [@user.first_name, @user.last_name].join(' ')
+      [
+        '<blockquote id="' + @id + '" class="message">'
+        "<p>#{@text}</p>"
+        '<small><i class="icon-user"></i> '
+        username
+        ' | ' + feed.formatDate(@date)
+        '</small></blockquote>'
+        '<div class="clearfix"></div>'
+      ].join ' '
+    
+    $("#user_#{@user.uid} ul.feed").append messageString
+
 $(document).ready ->
   window.usersList =
     list: {}
@@ -54,22 +94,7 @@ $(document).ready ->
         switch code
           # добавление нового сообщения
           when 4
-            [
-              message_id
-              flags
-              from_id
-              timestamp
-              subject
-              text
-              attachments
-            ] = update
-            
-            # юзер, которому или от которого отправлено сообщение
-            user = usersList.list[from_id]
-            # дата сообщения
-            date = new Date(timestamp * 1000)
-            
-            @addMessage text, user, date, flags & 2
+            message = new Message(update...)
           
           # друг $user_id стал онлайн(8) / оффлайн(9)
           when 8, 9
