@@ -160,8 +160,10 @@ $(document).ready ->
   $('#navbar').on 'shown', 'li.user a[data-toggle="tab"]', (e) ->
     user_id = e.target.id.split('_')[1]
     user = usersList.list[user_id]
-    user.unread = 0
-    usersList.renderMenu()
+    
+    if user.unread > 0
+      user.unread = 0
+      usersList.renderMenu()
   
   $(document).on 'submit', 'form.message', (e) ->
     form = $(e.target)
