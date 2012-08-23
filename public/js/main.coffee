@@ -2,6 +2,22 @@
 
 log = (param) -> console.log param
 
+class User
+  constructor: (data) ->
+    @uid    = data.uid
+    @name   = [data.first_name, data.last_name] .join(' ')
+    @online = data.online
+    @unread = 0
+    
+    @previousMessagesLoaded = false
+  
+  loadPreviousMessages: (messages) ->
+    if messages?
+      # рендерим полученные сообщения
+    else
+      # запрашиваем сообщения из вебсокета
+      log "requesting messages history for user ##{@uid}"
+
 class Message
   constructor: (@id, flags, from_id, timestamp, @subject, @text, @attachments) ->
     @unread = flags & 1
@@ -29,12 +45,11 @@ class Message
         '<div class="clearfix"></div>'
       ].join ' '
     else
-      username = [@user.first_name, @user.last_name].join(' ')
       [
         '<blockquote id="' + @id + '" class="message">'
         "<p>#{@text}</p>"
         '<small><i class="icon-user"></i> '
-        username
+        @user.name
         ' | ' + feed.formatDate(@date)
         '</small></blockquote>'
         '<div class="clearfix"></div>'
@@ -47,9 +62,8 @@ $(document).ready ->
     list: {}
     
     load: (list) ->
-      for user in list
-        user.unread = 0
-        @list[user.uid] = user
+      for user_attributes in list
+        @list[user_attributes.uid] = new User(user_attributes)
       
       @clearOnLoad()
       @renderMenu()
@@ -60,9 +74,8 @@ $(document).ready ->
       $('#navbar .user').remove()
       
       for id, user of @list
-        name = "#{user.first_name} #{user.last_name}"
-        
-        li = '<li class="user"><a href="#user_' + id + '" id="tab_' + id + '" data-toggle="tab"><i class="icon-user"></i> ' + name
+        li = '<li class="user"><a href="#user_' + id + '" id="tab_' + id + '" data-toggle="tab">'
+        li += '<i class="icon-user"></i> ' + user.name
         li += ' <span class="label label-success">Online</span>' if user.online
         li += ' <span class="badge badge-warning">' + user.unread + '</span>' if user.unread > 0
         li += '</a></li>'
@@ -72,10 +85,8 @@ $(document).ready ->
     # метод должен вызываться один раз после загрузки usersList
     renderPanes: ->
       for id, user of @list
-        name = "#{user.first_name} #{user.last_name}"
-        
         pane = '<div class="tab-pane fade user" id="user_' + id + '">'
-        pane += '<h6>' + name + '</h6><ul class="feed"></ul>'
+        pane += '<h6>' + user.name + '</h6><ul class="feed"></ul>'
         pane += '<form class="well message" data-user-id="' + id + '">'
         pane += '<textarea class="span8" name="message" placeholder="Сообщение"></textarea>'
         pane += '<button class="btn btn-primary" type="submit">Отправить</button>'
@@ -125,18 +136,24 @@ $(document).ready ->
     
     addStatus: (statusString, user) ->
       # добавляем полную запись (лейблы плюс юзернейм) в общий фид
-      $('#feed ul.feed').append "<li>#{statusString} #{user.first_name} #{user.last_name}</li>"
+      $('#feed ul.feed').append "<li>#{statusString} #{user.name}</li>"
       # и укороченную запись (только лейблы) в персональный фид
       $("#user_#{user.uid} ul.feed").append "<li>#{statusString}</li>"
   
+  # обработчик перехода в табу юзера
   $('#navbar').on 'shown', 'li.user a[data-toggle="tab"]', (e) ->
     user_id = e.target.id.split('_')[1]
     user = usersList.list[user_id]
     
+    # если предыдущие сообщения еще не загружены, грузим
+    user.loadPreviousMessages() unless user.previousMessagesLoaded
+    
+    # если есть непрочитанные сообщения - сбрасываем счетчик
     if user.unread > 0
       user.unread = 0
       usersList.renderMenu()
   
+  # обработчик сабмита формы
   $(document).on 'submit', 'form.message', (e) ->
     form = $(e.target)
     message =
