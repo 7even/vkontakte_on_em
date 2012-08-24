@@ -1,6 +1,10 @@
 require 'bundler'
 Bundler.require
 
+# нужно выключить буферизацию вывода,
+# дабы видеть логгирование в реальном времени
+$stdout.sync = true
+
 VkontakteApi.configure do |config|
   config.adapter         = :em_synchrony
   config.faraday_options = { request: { timeout: 30 } }

@@ -8,3 +8,5 @@ gem 'em-http-request'
 gem 'vkontakte_api'
 gem 'pry'
 gem 'awesome_print'
+
+gem 'foreman'
