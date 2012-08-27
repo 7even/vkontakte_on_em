@@ -1,5 +1,3 @@
-# coffee -wc public/js/main.coffee
-
 log = (param) -> console.log param
 
 $(document).ready ->
