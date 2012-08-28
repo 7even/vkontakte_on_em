@@ -9,7 +9,9 @@ class User
   
   loadPreviousMessages: (messages) ->
     if messages?
-      # рендерим полученные сообщения
+      # очищаем все уже загруженные сообщения
+      $("#user_#{@uid} ul.feed").html('')
+      # и рендерим полученные сообщения
       for message in messages
         unread = if (message.read_state == 1) then 0 else 1
         flags = unread + message.out * 2
@@ -32,3 +34,6 @@ class User
         action: 'load_previous_messages'
         uid:    @uid
       ws.send $.param(data)
+  
+  paneActive: ->
+    $("#user_#{@uid}").hasClass('active')

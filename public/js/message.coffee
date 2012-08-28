@@ -5,7 +5,9 @@ class Message
     @user = usersList.list[from_id]
     @date = new Date(timestamp * 1000)
     
-    if @unread && !@outgoing
+    # если это непрочитанное входящее сообщение,
+    # и панель этого юзера неактивна, добавляем сообщение в счетчик
+    if @unread && !@outgoing && !@user.paneActive()
       @user.unread += 1
       usersList.renderMenu()
     
