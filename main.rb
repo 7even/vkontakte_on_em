@@ -21,6 +21,11 @@ class Messenger
   def start
     Fiber.new do
       friends = $client.friends.get(fields: [:screen_name, :photo])
+      unread = get_unread_messages
+      friends.each do |friend|
+        friend.unread = unread[friend.uid]
+      end
+      
       send_to_websocket(friends_list: friends)
       
       url, params = get_polling_params
@@ -67,6 +72,18 @@ private
       'http://' + params.delete(:server),
       params.merge(act: 'a_check', wait: 25, mode: 2)
     ]
+  end
+  
+  # кол-во непрочитанных входящих сообщений, разбитое по отправителям
+  def get_unread_messages
+    messages = $client.messages.get(filters: 1)
+    messages.shift
+    
+    counts = Hash.new(0)
+    messages.inject(counts) do |hash, message|
+      hash[message.uid] += 1
+      hash
+    end
   end
 end
 

@@ -3,7 +3,7 @@ class User
     @uid    = data.uid
     @name   = [data.first_name, data.last_name] .join(' ')
     @online = data.online
-    @unread = 0
+    @unread = data.unread
     
     @previousMessagesLoaded = false
   
