@@ -10,11 +10,24 @@ class User
   loadPreviousMessages: (messages) ->
     if messages?
       # рендерим полученные сообщения
-      log 'received previous messages:'
-      log messages
+      for message in messages
+        unread = if (message.read_state == 1) then 0 else 1
+        flags = unread + message.out * 2
+        
+        params = [
+          message.mid
+          flags
+          @uid
+          message.date
+          null
+          message.body
+          message.attachments
+        ]
+        new Message(params...)
+      
+      @previousMessagesLoaded = true
     else
       # запрашиваем сообщения из вебсокета
-      log "requesting messages history for user ##{@uid}"
       data =
         action: 'load_previous_messages'
         uid:    @uid

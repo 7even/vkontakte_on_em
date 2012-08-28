@@ -5,7 +5,7 @@ class Message
     @user = usersList.list[from_id]
     @date = new Date(timestamp * 1000)
     
-    if @unread
+    if @unread && !@outgoing
       @user.unread += 1
       usersList.renderMenu()
     
