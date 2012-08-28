@@ -100,6 +100,7 @@ $(document).ready ->
   $(document).on 'submit', 'form.message', (e) ->
     form = $(e.target)
     message =
+      action:  'send_message'
       uid:     form.data('user-id')
       message: form[0].message.value
     
@@ -107,13 +108,17 @@ $(document).ready ->
     form[0].message.value = ''
     false
   
-  ws = new WebSocket 'ws://0.0.0.0:8080'
+  window.ws = new WebSocket 'ws://0.0.0.0:8080'
   ws.onmessage = (event) ->
     message = $.parseJSON event.data
     
     switch message.type
-      when 'friends_list' then usersList.load message.data
-      when 'updates'      then feed.process message.data
+      when 'friends_list'
+        usersList.load message.data
+      when 'previous_messages'
+        usersList.list[message.data.uid].loadPreviousMessages message.data.messages
+      when 'updates'
+        feed.process message.data
       else
         log 'received unknown message:'
         log message

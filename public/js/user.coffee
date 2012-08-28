@@ -10,6 +10,12 @@ class User
   loadPreviousMessages: (messages) ->
     if messages?
       # рендерим полученные сообщения
+      log 'received previous messages:'
+      log messages
     else
       # запрашиваем сообщения из вебсокета
       log "requesting messages history for user ##{@uid}"
+      data =
+        action: 'load_previous_messages'
+        uid:    @uid
+      ws.send $.param(data)
