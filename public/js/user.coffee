@@ -37,3 +37,6 @@ class User
   
   paneActive: ->
     $("#user_#{@uid}").hasClass('active')
+  
+  unreadMessagesIds: ->
+    $("#user_#{@uid} ul.feed blockquote[data-unread=true]").map -> @id
