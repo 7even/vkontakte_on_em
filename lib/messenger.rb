@@ -14,7 +14,7 @@ class Messenger
       send_to_websocket(friends_list: friends)
       
       url, params = get_polling_params
-      while !@stopped && response = VkontakteApi::API.connection.get(url, params).body
+      while self.running? && response = VkontakteApi::API.connection.get(url, params).body
         if response.failed?
           # время действия ключа истекло, нужно получить новый
           url, params = get_polling_params
@@ -29,6 +29,10 @@ class Messenger
   
   def stop
     @stopped = true
+  end
+  
+  def running?
+    !@stopped
   end
   
   def send_message(params = {})
