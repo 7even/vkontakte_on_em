@@ -51,6 +51,13 @@ class Messenger
     end
   end
   
+  def mark_as_read(params = {})
+    in_fiber do
+      puts "marking messages #{params.mids} as read"
+      $client.messages.mark_as_read(mids: params.mids)
+    end
+  end
+  
 private
   def send_to_websocket(messages)
     messages.each do |type, data|

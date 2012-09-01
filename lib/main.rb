@@ -49,6 +49,8 @@ EM.synchrony do
         $messenger.send_message(data)
       when 'load_previous_messages'
         $messenger.load_previous_messages(data)
+      when 'mark_as_read'
+        $messenger.mark_as_read(data)
       end
     end
   end

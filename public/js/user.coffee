@@ -28,6 +28,7 @@ class User
         new Message(params...)
       
       @previousMessagesLoaded = true
+      @markAllAsRead() if @paneActive()
     else
       # запрашиваем сообщения из вебсокета
       data =
@@ -39,4 +40,17 @@ class User
     $("#user_#{@uid}").hasClass('active')
   
   unreadMessagesIds: ->
-    $("#user_#{@uid} ul.feed blockquote[data-unread=true]").map -> @id
+    ids = $("#user_#{@uid} ul.feed blockquote[data-unread=true]").map -> @id
+    $.makeArray(ids)
+  
+  markAllAsRead: ->
+    if @previousMessagesLoaded and @unread > 0
+      message =
+        action: 'mark_as_read'
+        mids:   @unreadMessagesIds().join(',')
+      ws.send $.param(message)
+      
+      # TODO: перенести сброс счетчика в обработку апдейтов
+      # и там же ставить прочитанным data-unread=false
+      @unread = 0
+      usersList.renderMenu()

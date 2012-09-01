@@ -91,10 +91,8 @@ $(document).ready ->
     # если предыдущие сообщения еще не загружены, грузим
     user.loadPreviousMessages() unless user.previousMessagesLoaded
     
-    # если есть непрочитанные сообщения - сбрасываем счетчик
-    if user.unread > 0
-      user.unread = 0
-      usersList.renderMenu()
+    # если есть непрочитанные сообщения - помечаем прочитанными
+    user.markAllAsRead()
   
   # обработчик сабмита формы
   $(document).on 'submit', 'form.message', (e) ->
