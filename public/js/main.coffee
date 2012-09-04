@@ -14,8 +14,12 @@ $(document).ready ->
     
     # очистка и ререндер менюшки
     renderMenu: ->
+      # запоминаем активную табу
+      activeTabId = $('li.active a').attr('id')
+      # чистим меню
       $('#navbar .user').remove()
       
+      # наполняем заново
       for id, user of @list
         li = '<li class="user"><a href="#user_' + id + '" id="tab_' + id + '" data-toggle="tab">'
         li += '<i class="icon-user"></i> ' + user.name
@@ -24,6 +28,9 @@ $(document).ready ->
         li += '</a></li>'
         
         $('#navbar').append li
+      
+      # восстанавливаем активную табу
+      $('#' + activeTabId).parent().addClass('active')
     
     # метод должен вызываться один раз после загрузки usersList
     renderPanes: ->
