@@ -20,7 +20,7 @@ $(document).ready ->
         li = '<li class="user"><a href="#user_' + id + '" id="tab_' + id + '" data-toggle="tab">'
         li += '<i class="icon-user"></i> ' + user.name
         li += ' <span class="label label-success">Online</span>' if user.online
-        li += ' <span class="badge badge-warning">' + user.unread + '</span>' if user.unread > 0
+        li += ' <span class="badge badge-warning">' + user.unreadCount() + '</span>' if user.hasUnread()
         li += '</a></li>'
         
         $('#navbar').append li
@@ -46,6 +46,11 @@ $(document).ready ->
         code = update.shift()
         
         switch code
+          # изменение флагов сообщения
+          when 3
+            [message_id, flags, user_id] = update
+            usersList.list[user_id].messages[message_id].read() if flags & 1
+          
           # добавление нового сообщения
           when 4
             message = new Message(update...)

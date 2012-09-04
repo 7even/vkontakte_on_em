@@ -5,24 +5,28 @@ class Message
     @user = usersList.list[from_id]
     @date = new Date(timestamp * 1000)
     
-    # если это непрочитанное входящее сообщение,
-    # и панель этого юзера неактивна, добавляем сообщение в счетчик
-    if @unread && !@outgoing && !@user.paneActive()
-      @user.unread += 1
-      usersList.renderMenu()
-    
+    @user.addMessage this
     @render()
+  
+  unreadAndIncoming: ->
+    @unread and !@outgoing
   
   read: ->
     @unread = false
+    
+    # если сообщение входящее, нужно заново отрендерить меню
+    unless @outgoing
+      # а если у юзера еще не загружены предыдущие сообщения,
+      # надо еще и вычесть единицу из счетчика
+      @user.unread -= 1 unless @user.previousMessagesLoaded
+      usersList.renderMenu()
   
   render: ->
     classes = ['message']
     classes.push 'pull-right' if @outgoing
     sender = if @outgoing then 'Я' else @user.name
     
-    messageString = '<blockquote id="' + @id + '" class="' + classes.join(' ') + '"'
-    messageString += ' data-unread=' + @unread + '>'
+    messageString = '<blockquote id="' + @id + '" class="' + classes.join(' ') + '">'
     messageString += "<p>#{@text}</p>"
     messageString += '<small><i class="icon-user"></i> ' + sender
     messageString += ' | ' + feed.formatDate(@date) + '</small>'
