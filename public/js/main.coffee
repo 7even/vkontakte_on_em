@@ -72,15 +72,30 @@ $(document).ready ->
     
     formatDate: (date = new Date) ->
       dateParts = [
-        date.getHours().toString()
-        date.getMinutes().toString()
-        date.getSeconds().toString()
+        date.getDate()
+        date.getMonth() + 1
+        date.getFullYear()
       ]
       
-      dateParts = for part in dateParts
-        if part.length is 1 then "0#{part}" else part
+      today = new Date
+      if dateParts[0] == today.getDate() and dateParts[1] == today.getMonth() + 1 and dateParts[2] == today.getFullYear()
+        dateString = 'сегодня'
+      else
+        dateParts = for part in dateParts
+          if part.toString().length is 1 then "0#{part}" else part
+        dateString = dateParts.join '.'
       
-      dateParts.join ':'
+      timeParts = [
+        date.getHours()
+        date.getMinutes()
+        date.getSeconds()
+      ]
+      
+      timeParts = for part in timeParts
+        if part.toString().length is 1 then "0#{part}" else part
+      timeString = timeParts.join ':'
+      
+      "#{dateString} в #{timeString}"
     
     addStatus: (statusString, user) ->
       # добавляем полную запись (лейблы плюс юзернейм) в общий фид
