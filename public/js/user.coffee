@@ -56,7 +56,7 @@ class User
     $("#user_#{@uid}").hasClass('active')
   
   unreadMessagesIds: ->
-    id for id, message of @messages when message.unread
+    id for id, message of @messages when message.unreadAndIncoming()
   
   addMessage: (message) ->
     @messages[message.id] = message

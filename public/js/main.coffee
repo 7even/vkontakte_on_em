@@ -133,7 +133,7 @@ $(document).ready ->
     form[0].message.value = ''
     false
   
-  window.ws = new WebSocket 'ws://0.0.0.0:8080'
+  window.ws = new WebSocket('ws://0.0.0.0:8080')
   ws.onmessage = (event) ->
     message = $.parseJSON event.data
     
