@@ -11,6 +11,8 @@ class Message
   unreadAndIncoming: ->
     @unread and !@outgoing
   
+  # помечаем сообщение прочитанным в интерфейсе приложения
+  # (используется, когда ВКонтакте сообщает, что это сообщение прочитано)
   read: ->
     @unread = false
     

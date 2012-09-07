@@ -1,7 +1,7 @@
 class User
   constructor: (data) ->
     @uid    = data.uid
-    @name   = [data.first_name, data.last_name] .join(' ')
+    @name   = [data.first_name, data.last_name].join(' ')
     @online = data.online
     
     # счетчик непрочитанных сообщений,
@@ -12,6 +12,10 @@ class User
     @messages = {}
     @previousMessagesLoaded = false
   
+  # перегруженная функция:
+  # без параметров запрашивает сообщения у бэк-энда;
+  # когда тот отвечает, эта же функция вызывается
+  # с полученными сообщениями, и происходит рендеринг
   loadPreviousMessages: (messages) ->
     if messages?
       # очищаем все уже загруженные сообщения
@@ -32,9 +36,12 @@ class User
           message.body
           message.attachments
         ]
+        # сообщение рендерится в конструкторе Message
         new Message(params...)
       
       @previousMessagesLoaded = true
+      # если открыта таба этого пользователя,
+      # нужно сразу пометить все сообщения прочитанными
       @markAllAsRead() if @paneActive()
     else
       # запрашиваем сообщения из вебсокета
@@ -44,9 +51,15 @@ class User
       ws.send $.param(data)
   
   unreadCount: ->
+    # кол-во непрочитанных входящих сообщений считается по-разному
+    # в зависимости от @previousMessagesLoaded:
     if @previousMessagesLoaded
+      # когда предыдущие сообщения уже загружены в @messages,
+      # обходим их и подсчитываем
       @unreadMessagesIds().length
     else
+      # до загрузки предыдущих сообщений считаем по @unread, полученной
+      # при изначальной загрузке списка пользователей
       @unread
   
   hasUnread: ->
@@ -56,6 +69,7 @@ class User
     $("#user_#{@uid}").hasClass('active')
   
   unreadMessagesIds: ->
+    # возвращаем id непрочитанных входящих сообщений из @messages
     id for id, message of @messages when message.unreadAndIncoming()
   
   addMessage: (message) ->
