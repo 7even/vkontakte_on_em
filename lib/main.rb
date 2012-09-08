@@ -44,13 +44,8 @@ EM.synchrony do
       puts "Received message: #{data.inspect}"
       
       action = data.delete(:action)
-      case action
-      when 'send_message'
-        $messenger.send_message(data)
-      when 'load_previous_messages'
-        $messenger.load_previous_messages(data)
-      when 'mark_as_read'
-        $messenger.mark_as_read(data)
+      if %w[send_message load_previous_messages mark_as_read].include?(action)
+        $messenger.send(action, data)
       end
     end
   end
