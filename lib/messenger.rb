@@ -128,4 +128,9 @@ private
       hash
     end
   end
+  
+  # хелпер для запуска кода в отдельном файбере
+  def in_fiber(&block)
+    Fiber.new(&block).resume
+  end
 end

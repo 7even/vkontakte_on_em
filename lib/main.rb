@@ -15,12 +15,6 @@ end
 
 $client = VkontakteApi::Client.new(ENV['TOKEN'])
 
-def in_fiber
-  Fiber.new do
-    yield
-  end.resume
-end
-
 EM.synchrony do
   EventMachine::WebSocket.start(host: '0.0.0.0', port: 8080) do |ws|
     ws.onopen do
