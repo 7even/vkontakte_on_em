@@ -1,15 +1,5 @@
 ## Персональный браузерный мессенджер ВКонтакте на WebSocket
 
-### Компиляция фронт-энда
+![скриншот](http://7vn.ru/images/vkontakte-async/messenger.png "VkontakteOnEM")
 
-``` sh
-$ coffee -cj public/js/main.js public/js/{user,message,users_list,feed,main}.coffee
-```
-
-### Запуск
-
-``` sh
-$ foreman start
-```
-
-и открыть в браузере `public/index.html`.
+Приложение описано в [этой статье](http://7vn.ru/blog/2012/09/09/vkontakte-async/).
