@@ -16,7 +16,7 @@ GEM
     em-websocket (0.3.8)
       addressable (>= 2.1.1)
       eventmachine (>= 0.12.9)
-    eventmachine (1.0.0.rc.4)
+    eventmachine (1.0.0)
     faraday (0.8.1)
       multipart-post (~> 1.1)
     faraday_middleware (0.8.8)
