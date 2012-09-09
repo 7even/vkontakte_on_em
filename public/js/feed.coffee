@@ -13,7 +13,7 @@ window.feed =
         when 4
           message = new Message(update...)
         
-        # друг $user_id стал онлайн(8) / оффлайн(9)
+        # друг стал онлайн(8) / оффлайн(9)
         when 8, 9
           user_id = update[0]
           user = usersList.list[-user_id]
@@ -28,6 +28,7 @@ window.feed =
           
           @addStatus [date, label].join(' '), user
   
+  # форматирование даты в стиле "04.09.2012 в 23:50:16" или "сегодня в 01:46:23"
   formatDate: (date = new Date) ->
     dateParts = [
       date.getDate()

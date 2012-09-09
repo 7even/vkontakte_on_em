@@ -22,7 +22,7 @@ EM.synchrony do
   EventMachine::WebSocket.start(host: '0.0.0.0', port: 8080) do |ws|
     ws.onopen do
       # при открытии соединения с браузером создаем новый мессенджер
-      puts 'Connection open'
+      VkontakteApi.logger.debug 'Connection open'
       $messenger = Messenger.new(ws)
       $messenger.start
     end
@@ -31,7 +31,7 @@ EM.synchrony do
       # при закрытии соединения останавливаем мессенджер,
       # чтобы он перестал запрашивать обновления
       $messenger.stop
-      puts 'Connection closed'
+      VkontakteApi.logger.debug 'Connection closed'
     end
     
     ws.onmessage do |msg|
@@ -41,7 +41,7 @@ EM.synchrony do
         mash.merge(key => value.first)
       end
       
-      puts "Received message: #{data.inspect}"
+      VkontakteApi.logger.debug "Received message: #{data.inspect}"
       
       action = data.delete(:action)
       if %w[send_message load_previous_messages mark_as_read].include?(action)

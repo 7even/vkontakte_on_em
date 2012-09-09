@@ -1,6 +1,6 @@
 class Messenger
-  # сохраняем объект EventMachine::WebSocket в инстанс-переменной,
-  # чтобы отправлять данные на фронт-энд
+  # сохраняем объект EventMachine::WebSocket::Connection
+  # в инстанс-переменной, чтобы отправлять данные на фронт-энд
   def initialize(ws)
     @ws = ws
   end
@@ -32,7 +32,7 @@ class Messenger
           send_to_websocket(updates: response.updates)
           # и обновляем параметр ts для использования
           # в следующем запросе к ВКонтакте
-          params[:ts] = response.ts
+          params.ts = response.ts
         end
       end
     end
@@ -61,7 +61,6 @@ class Messenger
   # до запуска мессенджера
   def load_previous_messages(params = {})
     in_fiber do
-      puts "loading messages for user ##{params.uid}"
       # выбрасываем первый элемент массива (там будет общее кол-во сообщений)
       # и сортируем в хронологическом порядке
       messages = $client.messages.get_history(uid: params.uid).tap(&:shift).reverse
@@ -78,7 +77,6 @@ class Messenger
   # пометка сообщений прочитанными
   def mark_as_read(params = {})
     in_fiber do
-      puts "marking messages #{params.mids} as read"
       $client.messages.mark_as_read(mids: params.mids)
       # на фронт-энд тут ничего отправлять не нужно,
       # т.к. изменение статуса "прочитано" придет в основном цикле
